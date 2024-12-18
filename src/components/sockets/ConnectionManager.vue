@@ -1,0 +1,20 @@
+<script setup>
+import { useSocketConnectionStore } from '@/stores/socket-connection'
+
+const socketConnectionStore = useSocketConnectionStore()
+
+function connect() {
+  socketConnectionStore.connect()
+}
+
+function disconnect() {
+  socketConnectionStore.disconnect()
+}
+</script>
+
+<template>
+  <div class="wrapper flex">
+    <button type="button" @click="connect()" class="me-2">Connect</button>
+    <button type="button" @click="disconnect()">Disconnect</button>
+  </div>
+</template>
