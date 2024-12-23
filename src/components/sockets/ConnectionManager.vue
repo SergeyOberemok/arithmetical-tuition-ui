@@ -1,5 +1,5 @@
 <script setup>
-import { useSocketConnectionStore } from '@/stores/socket-connection'
+import { useSocketConnectionStore } from '@/stores/socket-connection.store'
 
 const socketConnectionStore = useSocketConnectionStore()
 
