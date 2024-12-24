@@ -7,7 +7,7 @@ import ProbableAnswer from './ProbableAnswer.vue'
 import Question from './Question.vue'
 
 const assessmentStore = useAssessmentStore()
-const { latestItem, goal, result } = storeToRefs(assessmentStore)
+const { latestItem, goal, itemResult } = storeToRefs(assessmentStore)
 
 function fetchCorrectAnswer() {
   assessmentStore.refreshCorrectAnswer()
@@ -24,7 +24,7 @@ function nextQuestion([latestItemNew, isCorrectNew], [latestItemOld]) {
 }
 
 watch(latestItem, fetchCorrectAnswer)
-watch([latestItem, result], nextQuestion)
+watch([latestItem, itemResult], nextQuestion)
 </script>
 
 <template>

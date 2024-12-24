@@ -3,9 +3,10 @@ import { storeToRefs } from 'pinia'
 
 import { useAssessmentStore } from '@/stores/assessment.store'
 import Prompt from './Prompt.vue'
+import Results from './Results.vue'
 
 const assessmentStore = useAssessmentStore()
-const { isStarted } = storeToRefs(assessmentStore)
+const { isStarted, isEnded } = storeToRefs(assessmentStore)
 
 function startAssessment() {
   assessmentStore.start()
@@ -39,5 +40,7 @@ function nextQuestion() {
     </div>
 
     <prompt v-if="isStarted" class="mb-3"></prompt>
+
+    <results v-if="isEnded" class="mb-3"></results>
   </div>
 </template>

@@ -1,19 +1,30 @@
 import { socket } from '@/socket'
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, ref, shallowRef } from 'vue'
 
 export const useAssessmentStore = defineStore('assessment', () => {
   const isStarted = ref(false)
   const items = ref([])
   const goal = ref(null)
+  const itemResult = ref(false)
+  const results = shallowRef([])
   const result = ref(false)
 
   const latestItem = computed(() =>
     items.value.length ? items.value[items.value.length - 1] : null,
   )
 
+  const isEnded = computed(() => !isStarted.value && results.value.length)
+
   function bindEvents() {
-    socket.on('end', (message) => ((isStarted.value = false), console.log(message)))
+    socket.on(
+      'end',
+      (message) => (
+        (isStarted.value = false),
+        (result.value = message.result),
+        (results.value = message.results)
+      ),
+    )
   }
 
   function start() {
@@ -22,7 +33,7 @@ export const useAssessmentStore = defineStore('assessment', () => {
 
   function nextItem() {
     socket.emit('question', {}, (message) => {
-      result.value = false
+      itemResult.value = false
 
       !!message && items.value.push(message)
     })
@@ -33,15 +44,18 @@ export const useAssessmentStore = defineStore('assessment', () => {
   }
 
   function assess(answer) {
-    socket.emit('assess', answer, (target, answer, isCorrect) => (result.value = isCorrect))
+    socket.emit('assess', answer, (target, answer, isCorrect) => (itemResult.value = isCorrect))
   }
 
   return {
     isStarted,
-    items,
-    goal,
+    isEnded,
     result,
+    items,
+    results,
+    goal,
     latestItem,
+    itemResult,
     bindEvents,
     start,
     nextItem,
