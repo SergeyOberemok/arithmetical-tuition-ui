@@ -1,21 +1,21 @@
 import { describe, expect, it } from 'vitest'
-import { generateRandomNear, pickRandom } from '../numbers'
+import { generateChoices, generateRangeNear, pickRandom } from '../numbers'
 
 describe('Numbers', () => {
-  it('generateRandomNear', () => {
+  it('generateRangeNear', () => {
     const number = 6
 
-    const result = generateRandomNear(number)
+    const result = generateRangeNear(number)
 
     expect(result).toBeTruthy()
     expect(result).toContain(number)
     expect(result.some((i) => i < 0)).toBeFalsy()
   })
 
-  it('generateRandomNear with negatives', () => {
+  it('generateRangeNear with negatives', () => {
     const number = 1
 
-    const result = generateRandomNear(number, 4, true)
+    const result = generateRangeNear(number, 4, true)
 
     expect(result).toBeTruthy()
     expect(result).toContain(number)
@@ -30,5 +30,14 @@ describe('Numbers', () => {
 
     expect(arr).toContain(result)
     expect(arr.indexOf(result)).toBeLessThanOrEqual(length)
+  })
+
+  it('generateChoices', () => {
+    const correct = 5
+
+    const result = generateChoices(correct)
+
+    expect(result).toHaveLength(2)
+    expect(result).toContain(correct)
   })
 })

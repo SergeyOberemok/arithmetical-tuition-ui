@@ -1,17 +1,81 @@
 <script setup>
-import { useAssessmentStore } from '@/stores/assessment.store'
-import { storeToRefs } from 'pinia'
+import { promiseTimeout, usePointerSwipe } from '@vueuse/core'
+import { computed, ref, watch } from 'vue'
 
-const assessmentStore = useAssessmentStore()
-const { latestItem } = storeToRefs(assessmentStore)
+const { question } = defineProps({
+  question: String,
+})
+const emit = defineEmits(['chosen'])
+defineExpose({ highlightCorrectness })
+
+const isHighlighted = ref(false)
+const isCorrectHighlighted = ref(false)
+const container = ref(null)
+const containerWidth = computed(() => container.value?.offsetWidth)
+const target = ref(null)
+const left = ref('0')
+const opacity = ref(1)
+const {
+  direction,
+  isSwiping,
+  distanceX: lengthX,
+} = usePointerSwipe(target, {
+  onSwipe() {
+    if (!containerWidth.value) {
+      return
+    }
+
+    const length = lengthX.value * -1
+    left.value = `${length}px`
+    opacity.value = 1.1 - Math.abs(length) / containerWidth.value
+  },
+  onSwipeEnd() {
+    if (containerWidth.value && Math.abs(lengthX.value) / containerWidth.value >= 0.4) {
+      left.value = `${(lengthX.value / lengthX.value) * 100}%`
+      opacity.value = 0
+
+      emit('chosen', direction.value)
+    } else {
+      reset()
+    }
+  },
+})
+
+function highlightCorrectness(isCorrect) {
+  isHighlighted.value = true
+  isCorrectHighlighted.value = isCorrect
+  promiseTimeout(1000).then(() => (isHighlighted.value = false))
+}
+
+function reset() {
+  left.value = '0'
+  opacity.value = 1
+}
+
+watch(() => question, reset)
 </script>
 
 <template>
   <div class="wrapper">
     <div
-      class="w-full h-full border border-gray-300 rounded-md shadow-sm cursor-pointer flex justify-center items-center"
+      class="w-full h-full relative overflow-hidden select-none border border-gray-300 rounded-md shadow-sm cursor-pointer flex justify-center items-center"
+      ref="container"
+      :class="{
+        'bg-green-50 border-green-300': isHighlighted && isCorrectHighlighted,
+        'bg-red-50 border-red-300': isHighlighted && !isCorrectHighlighted,
+      }"
     >
-      {{ latestItem }}
+      <div v-if="isHighlighted">
+        <slot></slot>
+      </div>
+      <div
+        class="w-full h-full flex justify-center items-center absolute top-0 left-0 bg-gray-50"
+        ref="target"
+        :class="{ 'transition-all duration-200 ease-linear': isSwiping }"
+        :style="{ left, opacity }"
+      >
+        {{ question }}
+      </div>
     </div>
   </div>
 </template>

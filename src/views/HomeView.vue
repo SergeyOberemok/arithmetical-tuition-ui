@@ -6,7 +6,7 @@ import ConnectionState from '@/components/sockets/ConnectionState.vue'
 
 <template>
   <main class="container mx-auto px-3">
-    <h1 class="text-3xl font-bold underline mb-3">This is home view</h1>
+    <h1 class="text-2xl font-bold mb-3">Assessment</h1>
 
     <div class="flex justify-between mb-3">
       <connection-state></connection-state>
