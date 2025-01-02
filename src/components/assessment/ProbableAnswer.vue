@@ -1,13 +1,14 @@
 <script setup>
-import { promiseTimeout } from '@vueuse/core'
 import { computed, ref } from 'vue'
+
+import NumberImage from '@/common/components/NumberImage.vue'
 
 const { correct, choices } = defineProps({
   choices: Array,
   correct: Number,
 })
 const emit = defineEmits(['chosen'])
-defineExpose({ highlightCorrectness })
+defineExpose({ highlightCorrectness, reset })
 
 const isCorrectChosen = ref(false)
 const isWrongChosen = ref(false)
@@ -16,7 +17,11 @@ const isCorrectHighlighted = computed(() => isCorrectChosen.value || isWrongChos
 function highlightCorrectness(isCorrect) {
   isCorrectChosen.value = isCorrect
   isWrongChosen.value = !isCorrect
-  promiseTimeout(1000).then(() => ((isCorrectChosen.value = false), (isWrongChosen.value = false)))
+}
+
+function reset() {
+  isCorrectChosen.value = false
+  isWrongChosen.value = false
 }
 </script>
 
@@ -27,13 +32,13 @@ function highlightCorrectness(isCorrect) {
       :key="`${index}${choice}`"
       type="button"
       @click="emit('chosen', choice) || highlightCorrectness(choice === correct)"
-      class="border border-gray-300 rounded-md shadow-sm bg-gray-50"
+      class="border border-gray-300 rounded-md shadow-sm bg-gray-50 flex justify-center"
       :class="{
         'border-2 border-green-300 bg-green-50': isCorrectHighlighted && choice === correct,
         'border-2 border-red-300 bg-red-50': isWrongChosen && choice !== correct,
       }"
     >
-      {{ choice }}
+      <number-image :number="choice"></number-image>
     </button>
   </div>
 </template>

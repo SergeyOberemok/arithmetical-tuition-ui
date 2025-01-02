@@ -1,17 +1,21 @@
 <script setup>
+import ExpressionImage from '@/common/components/ExpressionImage.vue'
 import { generateChoices } from '@/common/utils/numbers'
 import { useAssessmentStore } from '@/stores/assessment.store'
 import { promiseTimeout } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
-import { ref, useTemplateRef, watch, watchEffect } from 'vue'
+import { computed, ref, useTemplateRef, watch, watchEffect } from 'vue'
 import ProbableAnswer from './ProbableAnswer.vue'
 import Question from './Question.vue'
+
+const TIMEOUT = 1500
 
 const assessmentStore = useAssessmentStore()
 const { latestItem, goal, itemResult } = storeToRefs(assessmentStore)
 const probableAnswerRef = useTemplateRef('probableAnswerRef')
 const questionRef = useTemplateRef('questionRef')
 const choices = ref([])
+const expression = computed(() => `${latestItem.value} = ${goal.value}`)
 
 function assess(answer) {
   assessmentStore.assess(answer)
@@ -24,8 +28,8 @@ function assessAnswer(answer) {
 function assessChoice(choice) {
   const answer = (choice === 'right' ? choices.value.slice(-1) : choices.value)[0]
 
-  highlightCorrectness(answer)
   assess(answer)
+  highlightCorrectness(answer)
 }
 
 function highlightCorrectness(answer) {
@@ -33,11 +37,17 @@ function highlightCorrectness(answer) {
 
   probableAnswerRef?.value?.highlightCorrectness(isCorrect)
   questionRef?.value?.highlightCorrectness(isCorrect)
+  promiseTimeout(TIMEOUT).then(() => reset())
+}
+
+function reset() {
+  probableAnswerRef?.value.reset()
+  questionRef?.value?.reset()
 }
 
 function nextQuestion([latestItemNew, isCorrectNew], [latestItemOld]) {
   if (latestItemNew === latestItemOld && isCorrectNew) {
-    promiseTimeout(1000).then(() => assessmentStore.nextItem())
+    promiseTimeout(TIMEOUT).then(() => assessmentStore.nextItem())
   }
 }
 
@@ -63,8 +73,13 @@ watch([latestItem, itemResult], nextQuestion)
       ref="probableAnswerRef"
     ></probable-answer>
 
-    <question class="h-2/3" :question="latestItem" @chosen="assessChoice" ref="questionRef">
-      <span>{{ `${latestItem} = ${goal}` }}</span>
+    <question class="h-2/3" @chosen="assessChoice" ref="questionRef">
+      <template #question>
+        <expression-image :expression="latestItem"></expression-image>
+      </template>
+      <template #answer>
+        <expression-image :expression="expression"></expression-image>
+      </template>
     </question>
   </div>
 </template>

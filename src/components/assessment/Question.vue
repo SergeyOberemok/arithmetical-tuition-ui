@@ -1,12 +1,9 @@
 <script setup>
-import { promiseTimeout, usePointerSwipe } from '@vueuse/core'
-import { computed, ref, watch } from 'vue'
+import { usePointerSwipe } from '@vueuse/core'
+import { computed, ref } from 'vue'
 
-const { question } = defineProps({
-  question: String,
-})
 const emit = defineEmits(['chosen'])
-defineExpose({ highlightCorrectness })
+defineExpose({ highlightCorrectness, reset })
 
 const isHighlighted = ref(false)
 const isCorrectHighlighted = ref(false)
@@ -44,15 +41,13 @@ const {
 function highlightCorrectness(isCorrect) {
   isHighlighted.value = true
   isCorrectHighlighted.value = isCorrect
-  promiseTimeout(1000).then(() => (isHighlighted.value = false))
 }
 
 function reset() {
   left.value = '0'
   opacity.value = 1
+  isHighlighted.value = false
 }
-
-watch(() => question, reset)
 </script>
 
 <template>
@@ -66,7 +61,7 @@ watch(() => question, reset)
       }"
     >
       <div v-if="isHighlighted">
-        <slot></slot>
+        <slot name="answer"></slot>
       </div>
       <div
         class="w-full h-full flex justify-center items-center absolute top-0 left-0 bg-gray-50"
@@ -74,7 +69,7 @@ watch(() => question, reset)
         :class="{ 'transition-all duration-200 ease-linear': isSwiping }"
         :style="{ left, opacity }"
       >
-        {{ question }}
+        <slot name="question"></slot>
       </div>
     </div>
   </div>

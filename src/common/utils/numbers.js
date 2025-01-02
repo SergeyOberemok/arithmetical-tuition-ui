@@ -24,3 +24,18 @@ export function generateChoices(correctOne) {
 
   return shuffle([correctOne, random])
 }
+
+export function toDigits(number) {
+  return `${number}`.split('').map((i) => +i)
+}
+
+export function splitByNumbers(expression) {
+  if (!expression) {
+    return []
+  }
+
+  return expression
+    .split(/(\d+)/)
+    .filter(Boolean)
+    .map((i) => (isFinite(+i) ? +i : i))
+}

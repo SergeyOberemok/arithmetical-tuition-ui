@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { generateChoices, generateRangeNear, pickRandom } from '../numbers'
+import {
+  generateChoices,
+  generateRangeNear,
+  pickRandom,
+  splitByNumbers,
+  toDigits,
+} from '../numbers'
 
 describe('Numbers', () => {
   it('generateRangeNear', () => {
@@ -39,5 +45,26 @@ describe('Numbers', () => {
 
     expect(result).toHaveLength(2)
     expect(result).toContain(correct)
+  })
+
+  it('toDigits', () => {
+    const number = 12
+
+    const result = toDigits(number)
+
+    expect(result).toHaveLength(2)
+    expect(result).toContain(1)
+    expect(result).toContain(2)
+  })
+
+  it('splitByNumbers', () => {
+    const expression = '2 x 2 = 5'
+
+    const result = splitByNumbers(expression)
+
+    expect(result).toBeTruthy()
+    expect(result).toHaveLength(5)
+    expect(result).toContain(2)
+    expect(result).toContain(5)
   })
 })
