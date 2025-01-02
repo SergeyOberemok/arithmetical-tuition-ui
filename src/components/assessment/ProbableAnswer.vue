@@ -3,9 +3,10 @@ import { computed, ref } from 'vue'
 
 import NumberImage from '@/common/components/NumberImage.vue'
 
-const { correct, choices } = defineProps({
+const { correct, choices, isRevealed } = defineProps({
   choices: Array,
   correct: Number,
+  isRevealed: Boolean,
 })
 const emit = defineEmits(['chosen'])
 defineExpose({ highlightCorrectness, reset })
@@ -32,13 +33,16 @@ function reset() {
       :key="`${index}${choice}`"
       type="button"
       @click="emit('chosen', choice) || highlightCorrectness(choice === correct)"
-      class="border border-gray-300 rounded-md shadow-sm bg-gray-50 flex justify-center"
+      class="border border-gray-300 rounded-md shadow-sm bg-gray-50 flex justify-center items-center"
       :class="{
         'border-2 border-green-300 bg-green-50': isCorrectHighlighted && choice === correct,
         'border-2 border-red-300 bg-red-50': isWrongChosen && choice !== correct,
       }"
     >
-      <number-image :number="choice"></number-image>
+      <template v-if="!isRevealed">
+        <number-image :number="choice"></number-image>
+      </template>
+      <div v-else>{{ choice }}</div>
     </button>
   </div>
 </template>

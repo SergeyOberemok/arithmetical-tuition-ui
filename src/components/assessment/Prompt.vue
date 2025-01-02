@@ -10,6 +10,10 @@ import Question from './Question.vue'
 
 const TIMEOUT = 1500
 
+const { isImagesStripped: isRevealed } = defineProps({
+  isImagesStripped: Boolean,
+})
+
 const assessmentStore = useAssessmentStore()
 const { latestItem, goal, itemResult } = storeToRefs(assessmentStore)
 const probableAnswerRef = useTemplateRef('probableAnswerRef')
@@ -71,14 +75,15 @@ watch([latestItem, itemResult], nextQuestion)
       :correct="goal"
       @chosen="assessAnswer"
       ref="probableAnswerRef"
+      :is-revealed="isRevealed"
     ></probable-answer>
 
     <question class="h-2/3" @chosen="assessChoice" ref="questionRef">
       <template #question>
-        <expression-image :expression="latestItem"></expression-image>
+        <expression-image :expression="latestItem" :is-revealed="isRevealed"></expression-image>
       </template>
       <template #answer>
-        <expression-image :expression="expression"></expression-image>
+        <expression-image :expression="expression" :is-revealed="isRevealed"></expression-image>
       </template>
     </question>
   </div>
