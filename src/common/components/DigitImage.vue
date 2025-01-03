@@ -6,6 +6,6 @@ const { digit } = defineProps({
 
 <template>
   <div class="wrapper">
-    <img :src="`/${digit}.jpg`" :alt="digit" class="pointer-events-none" />
+    <img :src="`${digit}.jpg`" :alt="digit" class="pointer-events-none" />
   </div>
 </template>

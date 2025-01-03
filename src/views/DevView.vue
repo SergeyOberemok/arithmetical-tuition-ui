@@ -1,37 +1,22 @@
 <script setup>
-import { ref } from 'vue'
+import Summaries from '@/components/assessment/Summaries.vue'
+import { computed, ref } from 'vue'
 
-import ExpressionImage from '@/common/components/ExpressionImage.vue'
-import ProbableAnswer from '@/components/assessment/ProbableAnswer.vue'
-import Question from '@/components/assessment/Question.vue'
-
-const isRevealed = ref(false)
+const results = computed(() =>
+  Array.from(Array(5), () => ['2 + 2', 4, 4, !!Math.floor(Math.random() * 2)]),
+)
+const isStripped = ref(false)
 </script>
 
 <template>
   <div class="wrapper container mx-auto h-64 px-3">
     <button
       type="button"
-      @click="isRevealed = !isRevealed"
-      class="border border-gray-300 rounded-md shadow-sm mb-3 px-2"
+      class="border border-gray-300 rounded-md shadow-sm px-2 mb-3"
+      @click="isStripped = !isStripped"
     >
-      Reveal
+      Strip
     </button>
-
-    <probable-answer
-      :choices="[1, 2]"
-      :correct="1"
-      :is-revealed="isRevealed"
-      class="mb-3"
-    ></probable-answer>
-
-    <question class="h-2/3">
-      <template #question>
-        <expression-image expression="2 x 2" :is-revealed="isRevealed"></expression-image>
-      </template>
-      <template #answer>
-        <expression-image expression="2 x 2 = 5" :is-revealed="isRevealed"></expression-image>
-      </template>
-    </question>
+    <summaries :results="results" :is-images-stripped="isStripped"></summaries>
   </div>
 </template>

@@ -3,8 +3,9 @@ import { computed } from 'vue'
 import DigitImage from './DigitImage.vue'
 import { toDigits } from '../utils/numbers'
 
-const { number } = defineProps({
+const { number, isRevealed } = defineProps({
   number: Number,
+  isRevealed: Boolean,
 })
 const digits = computed(() => toDigits(number))
 </script>
@@ -12,7 +13,10 @@ const digits = computed(() => toDigits(number))
 <template>
   <div class="wrapper flex">
     <template v-for="(digit, index) in digits" :key="`${digit}_${index}`">
-      <digit-image :digit="digit"></digit-image>
+      <template v-if="!isRevealed">
+        <digit-image :digit="digit"></digit-image>
+      </template>
+      <div v-else>{{ digit }}</div>
     </template>
   </div>
 </template>

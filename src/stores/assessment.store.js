@@ -27,8 +27,8 @@ export const useAssessmentStore = defineStore('assessment', () => {
     )
   }
 
-  function start() {
-    socket.emit('start', {}, () => (isStarted.value = true))
+  function start(quantity) {
+    socket.emit('start', quantity, () => (isStarted.value = true))
   }
 
   function nextItem() {
