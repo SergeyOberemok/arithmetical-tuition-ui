@@ -1,0 +1,7 @@
+..dockerignore
+.editorconfig
+.git
+.gitignore
+.prettierrc.json
+.vscode
+node_modules
