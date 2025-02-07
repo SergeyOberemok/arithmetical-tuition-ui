@@ -1,48 +1,41 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { ref, watch } from 'vue'
 
-import NumberImage from '@/common/components/NumberImage.vue'
+import { generateChoices } from '@/common/utils/numbers'
 
-const { correct, choices, isRevealed } = defineProps({
-  choices: Array,
-  correct: Number,
-  isRevealed: Boolean,
+const choices = ref([])
+const isCorrectChosen = ref(false)
+
+const { correct } = defineProps({
+  correct: {
+    type: Number,
+    required: true,
+  },
 })
 const emit = defineEmits(['chosen'])
-defineExpose({ highlightCorrectness, reset })
-
-const isCorrectChosen = ref(false)
-const isWrongChosen = ref(false)
-const isCorrectHighlighted = computed(() => isCorrectChosen.value || isWrongChosen.value)
-
-function highlightCorrectness(isCorrect) {
-  isCorrectChosen.value = isCorrect
-  isWrongChosen.value = !isCorrect
-}
+defineExpose({ choices, reset })
 
 function reset() {
   isCorrectChosen.value = false
-  isWrongChosen.value = false
 }
+
+watch(
+  () => correct,
+  (goal) => (choices.value = generateChoices(goal)),
+  { immediate: true },
+)
 </script>
 
 <template>
-  <div class="wrapper grid gap-3 grid-cols-2">
+  <div class="wrapper grid gap-3 grid-cols-2 h-48 min-h-48">
     <button
       v-for="(choice, index) in choices"
       :key="`${index}${choice}`"
+      @click="((isCorrectChosen = choice === correct), emit('chosen', choice))"
+      class="w-full h-full"
       type="button"
-      @click="emit('chosen', choice) || highlightCorrectness(choice === correct)"
-      class="border border-gray-300 rounded-md shadow-sm bg-gray-50 flex justify-center items-center"
-      :class="{
-        'border-2 border-green-300 bg-green-50': isCorrectHighlighted && choice === correct,
-        'border-2 border-red-300 bg-red-50': isWrongChosen && choice !== correct,
-      }"
     >
-      <template v-if="!isRevealed">
-        <number-image :number="choice"></number-image>
-      </template>
-      <div v-else>{{ choice }}</div>
+      <slot :number="choice"></slot>
     </button>
   </div>
 </template>

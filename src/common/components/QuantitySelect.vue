@@ -9,7 +9,7 @@ const range = Array.from(Array(5), (_, i) => (i + 1) * QUANTITY_MULTIPLIER)
 <template>
   <div class="wrapper">
     <select
-      class="border border-gray-300 rounded-md shadow-sm px-2 py-1"
+      class="w-full border border-gray-300 rounded-md shadow-sm px-2 py-1"
       name="quantity"
       id="quantity"
       v-model="quantity"

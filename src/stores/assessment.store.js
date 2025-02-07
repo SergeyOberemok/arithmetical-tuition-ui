@@ -9,6 +9,7 @@ export const useAssessmentStore = defineStore('assessment', () => {
   const itemResult = ref(false)
   const results = shallowRef([])
   const result = ref(false)
+  const isStripped = ref(false)
 
   const latestItem = computed(() =>
     items.value.length ? items.value[items.value.length - 1] : null,
@@ -29,6 +30,7 @@ export const useAssessmentStore = defineStore('assessment', () => {
 
   function start(quantity) {
     socket.emit('start', quantity, () => (isStarted.value = true))
+    nextItem()
   }
 
   function nextItem() {
@@ -56,6 +58,7 @@ export const useAssessmentStore = defineStore('assessment', () => {
     goal,
     latestItem,
     itemResult,
+    isStripped,
     bindEvents,
     start,
     nextItem,

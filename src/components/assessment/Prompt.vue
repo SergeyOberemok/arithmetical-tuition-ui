@@ -1,90 +1,89 @@
 <script setup>
+import { computed, useTemplateRef, watch } from 'vue'
+
 import ExpressionImage from '@/common/components/ExpressionImage.vue'
-import { generateChoices } from '@/common/utils/numbers'
-import { useAssessmentStore } from '@/stores/assessment.store'
-import { promiseTimeout } from '@vueuse/core'
-import { storeToRefs } from 'pinia'
-import { computed, ref, useTemplateRef, watch, watchEffect } from 'vue'
+import LeftRightSwipe from '@/common/components/LeftRightSwipe.vue'
+import NumberImage from '@/common/components/NumberImage.vue'
 import ProbableAnswer from './ProbableAnswer.vue'
-import Question from './Question.vue'
 
-const TIMEOUT = 1500
-
-const { isImagesStripped: isRevealed } = defineProps({
-  isImagesStripped: Boolean,
-})
-
-const assessmentStore = useAssessmentStore()
-const { latestItem, goal, itemResult } = storeToRefs(assessmentStore)
 const probableAnswerRef = useTemplateRef('probableAnswerRef')
 const questionRef = useTemplateRef('questionRef')
-const choices = ref([])
-const expression = computed(() => `${latestItem.value} = ${goal.value}`)
+const expression = computed(() => `${question} = ${goal}`)
 
-function assess(answer) {
-  assessmentStore.assess(answer)
-}
-
-function assessAnswer(answer) {
-  assess(answer)
-}
+const { question, goal, isHighlighted } = defineProps({
+  question: {
+    type: String,
+    required: true,
+  },
+  goal: {
+    type: Number,
+    required: true,
+  },
+  isImagesStripped: Boolean,
+  isHighlighted: Boolean,
+  isCorrect: Boolean,
+})
+const emit = defineEmits(['answered'])
 
 function assessChoice(choice) {
-  const answer = (choice === 'right' ? choices.value.slice(-1) : choices.value)[0]
+  const choices = probableAnswerRef.value.choices
+  const answer = (choice === 'right' ? choices.slice(-1) : choices)[0]
 
-  assess(answer)
-  highlightCorrectness(answer)
-}
-
-function highlightCorrectness(answer) {
-  const isCorrect = goal.value === answer
-
-  probableAnswerRef?.value?.highlightCorrectness(isCorrect)
-  questionRef?.value?.highlightCorrectness(isCorrect)
-  promiseTimeout(TIMEOUT).then(() => reset())
+  emit('answered', answer)
 }
 
 function reset() {
-  probableAnswerRef?.value.reset()
-  questionRef?.value?.reset()
+  probableAnswerRef.value.reset()
+  questionRef.value.reset()
 }
 
-function nextQuestion([latestItemNew, isCorrectNew], [latestItemOld]) {
-  if (latestItemNew === latestItemOld && isCorrectNew) {
-    promiseTimeout(TIMEOUT).then(() => assessmentStore.nextItem())
-  }
-}
-
-watchEffect(() => {
-  if (latestItem.value !== null) {
-    assessmentStore.refreshCorrectAnswer()
-  }
-
-  if (goal.value !== null) {
-    choices.value = generateChoices(goal.value)
-  }
-})
-watch([latestItem, itemResult], nextQuestion)
+watch(
+  () => isHighlighted,
+  (value) => !value && reset(),
+)
 </script>
 
 <template>
-  <div class="wrapper flex flex-col h-96">
+  <div class="wrapper flex flex-col">
     <probable-answer
-      class="h-1/3 mb-3"
-      :choices="choices"
       :correct="goal"
-      @chosen="assessAnswer"
+      @chosen="emit('answered', $event)"
+      class="h-1/3 mb-3"
       ref="probableAnswerRef"
-      :is-revealed="isRevealed"
-    ></probable-answer>
+      v-slot="slotProps"
+    >
+      <number-image
+        :number="slotProps.number"
+        :is-revealed="isImagesStripped"
+        class="h-full border border-gray-300 rounded-md shadow-sm bg-gray-50 flex justify-center items-center"
+        :class="{
+          'border-2 border-green-300 bg-green-50': isHighlighted && slotProps.number === goal,
+          'border-2 border-red-300 bg-red-50':
+            isHighlighted && !isCorrect && slotProps.number !== goal,
+        }"
+      ></number-image>
+    </probable-answer>
 
-    <question class="h-2/3" @chosen="assessChoice" ref="questionRef">
-      <template #question>
-        <expression-image :expression="latestItem" :is-revealed="isRevealed"></expression-image>
+    <div class="h-2/3 relative">
+      <left-right-swipe
+        @moved="assessChoice"
+        class="h-full border border-gray-300 rounded-md shadow-sm bg-gray-50"
+        :class="{
+          'bg-green-50 border-green-300': isHighlighted && isCorrect,
+          'bg-red-50 border-red-300': isHighlighted && !isCorrect,
+        }"
+        ref="questionRef"
+      >
+        <expression-image :expression="question" :is-revealed="isImagesStripped"></expression-image>
+      </left-right-swipe>
+
+      <template v-if="isHighlighted">
+        <expression-image
+          :expression="expression"
+          :is-revealed="isImagesStripped"
+          class="absolute inset-0"
+        ></expression-image>
       </template>
-      <template #answer>
-        <expression-image :expression="expression" :is-revealed="isRevealed"></expression-image>
-      </template>
-    </question>
+    </div>
   </div>
 </template>

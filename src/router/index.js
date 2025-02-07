@@ -1,5 +1,8 @@
 import DevView from '@/views/DevView.vue'
 import HomeView from '@/views/HomeView.vue'
+import PromptView from '@/views/PromptView.vue'
+import SummaryView from '@/views/SummaryView.vue'
+import TouchingView from '@/views/TouchingView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
@@ -9,6 +12,11 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView,
+      children: [
+        { path: 'prompt', component: PromptView, name: 'prompt' },
+        { path: 'select', component: TouchingView },
+        { path: 'summary', component: SummaryView },
+      ],
     },
     {
       path: '/about',

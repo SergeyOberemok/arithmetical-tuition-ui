@@ -13,7 +13,7 @@ const expressionParts = computed(() => splitByNumbers(expression))
 </script>
 
 <template>
-  <div class="wrapper flex items-center">
+  <div class="wrapper flex justify-center items-center">
     <template v-for="(part, index) in expressionParts" :key="`${part}_${index}`">
       <template v-if="isNumber(part) && !isRevealed">
         <number-image :number="part"></number-image>

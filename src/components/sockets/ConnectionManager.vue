@@ -14,7 +14,7 @@ function disconnect() {
 
 <template>
   <div class="wrapper flex">
-    <button type="button" @click="connect()" class="me-2">Connect</button>
-    <button type="button" @click="disconnect()">Disconnect</button>
+    <button type="button" @click="connect()" class="me-2 cursor-pointer">Connect</button>
+    <button type="button" @click="disconnect()" class="cursor-pointer">Disconnect</button>
   </div>
 </template>

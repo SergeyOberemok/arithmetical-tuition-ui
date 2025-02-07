@@ -30,6 +30,12 @@ export default [
   skipFormatting,
 
   {
+    env: {
+      node: true,
+      browser: true,
+    },
+  },
+  {
     rules: { 'vue/multi-word-component-names': 'off' },
   },
 ]
