@@ -1,68 +1,60 @@
-import { socket } from '@/socket'
+import { AssessmentService } from '@/components/assessment/assessment.service'
 import { defineStore } from 'pinia'
 import { computed, ref, shallowRef } from 'vue'
 
 export const useAssessmentStore = defineStore('assessment', () => {
+  const assessmentService = new AssessmentService()
+
   const isStarted = ref(false)
-  const items = ref([])
-  const goal = ref(null)
-  const itemResult = ref(false)
+  const isEnded = computed(() => !isStarted.value)
+  const question = ref('')
+  const goal = ref()
+  const isCorrect = ref(false)
   const results = shallowRef([])
-  const result = ref(false)
   const isStripped = ref(false)
 
-  const latestItem = computed(() =>
-    items.value.length ? items.value[items.value.length - 1] : null,
-  )
+  async function start(quantity) {
+    isStarted.value = await assessmentService.start(quantity)
+  }
 
-  const isEnded = computed(() => !isStarted.value && results.value.length)
+  async function nextQuestion() {
+    if (!isStarted.value) {
+      return
+    }
+    const { question: q, goal: g } = await assessmentService.nextQuestion()
+
+    question.value = q
+    goal.value = g
+  }
+
+  async function assess(answer) {
+    const result = await assessmentService.assess(answer)
+
+    isCorrect.value = result
+  }
 
   function bindEvents() {
-    socket.on(
-      'end',
-      (message) => (
+    assessmentService.bindEvents({
+      end: ({ assessment, results: resultRecords, isPassed }) => (
+        console.log(assessment),
         (isStarted.value = false),
-        (result.value = message.result),
-        (results.value = message.results)
+        (results.value = resultRecords),
+        console.log(isPassed)
       ),
-    )
-  }
-
-  function start(quantity) {
-    socket.emit('start', quantity, () => (isStarted.value = true))
-    nextItem()
-  }
-
-  function nextItem() {
-    socket.emit('question', {}, (message) => {
-      itemResult.value = false
-
-      !!message && items.value.push(message)
     })
-  }
-
-  function refreshCorrectAnswer() {
-    socket.emit('objective', {}, (value) => (goal.value = value))
-  }
-
-  function assess(answer) {
-    socket.emit('assess', answer, (target, answer, isCorrect) => (itemResult.value = isCorrect))
   }
 
   return {
     isStarted,
     isEnded,
-    result,
-    items,
-    results,
+    question,
     goal,
-    latestItem,
-    itemResult,
+    results,
     isStripped,
-    bindEvents,
+    isCorrect,
     start,
-    nextItem,
-    refreshCorrectAnswer,
+    nextQuestion,
     assess,
+    bindEvents,
   }
 })

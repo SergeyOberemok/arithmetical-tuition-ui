@@ -18,6 +18,7 @@ const { question, goal, isHighlighted } = defineProps({
   goal: {
     type: Number,
     required: true,
+    default: 0,
   },
   isImagesStripped: Boolean,
   isHighlighted: Boolean,
@@ -48,14 +49,14 @@ watch(
     <probable-answer
       :correct="goal"
       @chosen="emit('answered', $event)"
-      class="h-1/3 mb-3"
+      class="mb-3"
       ref="probableAnswerRef"
       v-slot="slotProps"
     >
       <number-image
         :number="slotProps.number"
         :is-revealed="isImagesStripped"
-        class="h-full border border-gray-300 rounded-md shadow-sm bg-gray-50 flex justify-center items-center"
+        class="h-48 border border-gray-300 rounded-md shadow-sm bg-gray-50 flex justify-center items-center"
         :class="{
           'border-2 border-green-300 bg-green-50': isHighlighted && slotProps.number === goal,
           'border-2 border-red-300 bg-red-50':
@@ -64,10 +65,10 @@ watch(
       ></number-image>
     </probable-answer>
 
-    <div class="h-2/3 relative">
+    <div class="relative">
       <left-right-swipe
         @moved="assessChoice"
-        class="h-full border border-gray-300 rounded-md shadow-sm bg-gray-50"
+        class="h-64 border border-gray-300 rounded-md shadow-sm bg-gray-50"
         :class="{
           'bg-green-50 border-green-300': isHighlighted && isCorrect,
           'bg-red-50 border-red-300': isHighlighted && !isCorrect,

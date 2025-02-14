@@ -4,9 +4,7 @@ import Connection from '@/components/sockets/Connection.vue'
 </script>
 
 <template>
-  <main class="container mx-auto px-3">
-    <connection></connection>
+  <connection></connection>
 
-    <assessment></assessment>
-  </main>
+  <assessment></assessment>
 </template>

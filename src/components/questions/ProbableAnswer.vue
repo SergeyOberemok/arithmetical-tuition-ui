@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue'
 
 import { generateChoices } from '@/common/utils/numbers'
+import { isNumber } from 'lodash-es'
 
 const choices = ref([])
 const isCorrectChosen = ref(false)
@@ -10,6 +11,7 @@ const { correct } = defineProps({
   correct: {
     type: Number,
     required: true,
+    default: 0,
   },
 })
 const emit = defineEmits(['chosen'])
@@ -21,18 +23,17 @@ function reset() {
 
 watch(
   () => correct,
-  (goal) => (choices.value = generateChoices(goal)),
+  (goal) => isNumber(goal) && (choices.value = generateChoices(goal)),
   { immediate: true },
 )
 </script>
 
 <template>
-  <div class="wrapper grid gap-3 grid-cols-2 h-48 min-h-48">
+  <div class="wrapper grid gap-3 grid-cols-2">
     <button
       v-for="(choice, index) in choices"
       :key="`${index}${choice}`"
       @click="((isCorrectChosen = choice === correct), emit('chosen', choice))"
-      class="w-full h-full"
       type="button"
     >
       <slot :number="choice"></slot>

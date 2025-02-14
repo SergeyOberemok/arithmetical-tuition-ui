@@ -12,7 +12,7 @@ const isImagesStripped = ref(false)
 </script>
 
 <template>
-  <div class="wrapper flex justify-between">
+  <div class="controls-wrapper flex justify-between">
     <button
       type="button"
       @click="emit('started')"

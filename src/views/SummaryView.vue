@@ -1,7 +1,7 @@
 <script setup>
 import { storeToRefs } from 'pinia'
 
-import Summaries from '@/components/assessment/Summaries.vue'
+import Summary from '@/components/assessment/Summary.vue'
 import { useAssessmentStore } from '@/stores/assessment.store'
 
 const assessmentStore = useAssessmentStore()
@@ -10,6 +10,6 @@ const { results } = storeToRefs(assessmentStore)
 
 <template>
   <div class="wrapper">
-    <summaries :results="results" :is-images-stripped="isImagesStripped"></summaries>
+    <Summary :results="results" :is-images-stripped="isImagesStripped"></Summary>
   </div>
 </template>
